@@ -1,0 +1,23 @@
+{
+  "name": "generator-atlantix-bootstrap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atlantix-Media-Inc/generator-atlantix-bootstrap.git"
+  },
+  "keywords": [
+    "yeoman-generator",
+    "atlantix-media"
+  ],
+  "author": "Andres2D",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Atlantix-Media-Inc/generator-atlantix-bootstrap/issues"
+  },
+  "homepage": "https://github.com/Atlantix-Media-Inc/generator-atlantix-bootstrap#readme"
+}
