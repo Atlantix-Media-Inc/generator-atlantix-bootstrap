@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/Atlantix-Media-Inc/generator-atlantix-bootstrap#readme",
   "files": [
-    "generators"
+    "app",
+    "router"
   ],
   "dependencies": {
     "yeoman-generator": "^1.0.0"
