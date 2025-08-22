@@ -1,17 +1,21 @@
-const Generator = require('yeoman-generator');
-const { select } = require('inquirer');
-
-module.exports = class extends Generator {
+import Generator from 'yeoman-generator';
+export default class extends Generator {
   constructor(args, opts) {
     super(args, opts);
-    this.config.save();
     this.answers = {};
     this.ciCdAnswers = {};
   }
 
   initializing() {
-    this.log('Welcome to the Atlantix Media Inc Bootstrap Generator 🚀');
-  }
+    this.log(`
+      Welcome to
+┏━┓╺┳╸╻  ┏━┓┏┓╻╺┳╸╻╻ ╻   ┏┓ ┏━┓┏━┓╺┳╸┏━┓╺┳╸┏━┓┏━┓┏━┓
+┣━┫ ┃ ┃  ┣━┫┃┗┫ ┃ ┃┏╋┛   ┣┻┓┃ ┃┃ ┃ ┃ ┗━┓ ┃ ┣┳┛┣━┫┣━┛
+╹ ╹ ╹ ┗━╸╹ ╹╹ ╹ ╹ ╹╹ ╹   ┗━┛┗━┛┗━┛ ╹ ┗━┛ ╹ ╹┗╸╹ ╹╹       
+      The Atlantix Media Inc Bootstrap Generator 🚀🚀🚀
+      version: Beta 1.0.0
+    `);
+  } 
 
   async prompting() {
     this.answers = await this.prompt([
@@ -76,10 +80,15 @@ module.exports = class extends Generator {
 
   configuring() {
     if (this.answers.projectType === "add-ci-cd") {
-      this.log('Configuring your dependencies 📦️📦️📦️');
 
+      if(this.ciCdAnswers.ciCdOptions.length === 0) {
+        this.log('No options selected 💩💩💩');
+        return;
+      }
+      
+      this.log('Configuring your dependencies 📦️📦️📦️');
       if(this.ciCdAnswers.ciCdOptions.includes("commitlint-husky")) {
-        this.log('Installing comitlint 📦️');
+        this.log('Installing commitlint 📦️');
         this.npmInstall(['@commitlint/cli', '@commitlint/config-conventional'], { save: true });
   
         this.log('Installing husky 📦️');
@@ -95,6 +104,11 @@ module.exports = class extends Generator {
 
   writing() {
     if (this.answers.projectType === "add-ci-cd") {
+
+      if(this.ciCdAnswers.ciCdOptions.length === 0) {
+        return;
+      }
+
       this.log('Writing new files 🗃️🗃️🗃️');
 
       if(this.ciCdAnswers.ciCdOptions.includes("commitlint-husky")) {
