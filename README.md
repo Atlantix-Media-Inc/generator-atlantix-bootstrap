@@ -28,7 +28,7 @@ npm i generator-atlantix-bootstrap
 
 Finally, you can start using the generator. Just like this:
 ```cmd
-yo atlantix-generator
+yo atlantix-bootstrap
 ```
 ![cmd-example](./assets/cmd-example.gif) 
 
