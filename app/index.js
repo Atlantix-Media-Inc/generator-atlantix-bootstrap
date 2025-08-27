@@ -4,6 +4,8 @@ export default class extends Generator {
     super(args, opts);
     this.answers = {};
     this.ciCdAnswers = {};
+
+    this.conflicter.force = true;
   }
 
   initializing() {
@@ -73,8 +75,8 @@ export default class extends Generator {
         }
       ]);
 
-    } else if (this.answers.projectType === "add-page") {
-      this.log("Option not available yet 💩💩💩");
+    } else if (this.answers.projectType === "add-jest-testing") {
+      this.log("Adding Jest to your project 🧪🧪🧪");
     }
   }
 
@@ -89,18 +91,40 @@ export default class extends Generator {
       this.log('Configuring your dependencies 📦️📦️📦️');
       if(this.ciCdAnswers.ciCdOptions.includes("commitlint-husky")) {
         this.log('Installing commitlint 📦️');
-        this.npmInstall(['@commitlint/cli', '@commitlint/config-conventional'], { save: true });
+        const packageJson = this.fs.readJSON(this.destinationPath('package.json'), {});
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+          '@commitlint/cli': '^19.6.0',
+          '@commitlint/config-conventional': '^19.6.0',
+        }
+        this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
   
         this.log('Installing husky 📦️');
-        this.npmInstall(['husky'], { save: true });
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+          husky: '^9.1.7',
+        }
+        this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
   
         this.log('Initializing husky 📦️');
         this.spawnCommandSync('npx', ['husky']);
       }
+    } else if (this.answers.projectType === "add-jest-testing") {
+      this.log('Installing Jest 🧪🧪🧪');
+      const packageJson = this.fs.readJSON(this.destinationPath('package.json'), {});
+      packageJson.devDependencies = {
+        ...packageJson.devDependencies,
+          jest: '^29.7.0',
+          'jest-environment-jsdom': '^29.7.0',
+          '@testing-library/react': '^15.0.0',
+          '@testing-library/dom': '^10.4.0',
+          '@testing-library/jest-dom': '^6.6.3',
+          'ts-node': '^10.9.2',
+          '@types/jest': '^29.5.12'
+        }
+      this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
     }
   }
-
-  default() {}
 
   writing() {
     if (this.answers.projectType === "add-ci-cd") {
@@ -170,12 +194,35 @@ export default class extends Generator {
           this.destinationPath('script.sh'),
         )
       }
+    } else if (this.answers.projectType === "add-jest-testing") {
+      
+      this.log('Writing new jest configuration file 🔧🔧🔧');
+      this.fs.copyTpl(
+        this.templatePath('jest.config.ts'),
+        this.destinationPath('jest.config.ts'),
+      );
+      
+      this.log('Adding extra testing scripts 🌱🌱🌱');
+      const packageJson = this.fs.readJSON(this.destinationPath('package.json'), {});
+      packageJson.scripts = {
+        ...packageJson.scripts,
+        test: 'jest',
+        'test:watch': 'jest --watch',
+        'test:coverage': 'jest --coverage',
+      }
+      this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
+    
+      this.log('Creating basic testing file ⚗️⚗️⚗️');
+      this.fs.copyTpl(
+        this.templatePath('index.test.ts'),
+        this.destinationPath('__tests__/index.test.ts'),
+      );
     }
   }
 
-  conflicts() {}
-
-  install() {}
+  install() {
+    this.npmInstall();
+  }
 
   end() {
     this.log('Your project is ready to go 🎉🎉🎉');
