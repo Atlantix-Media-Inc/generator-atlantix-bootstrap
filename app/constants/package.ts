@@ -1,4 +1,4 @@
-export const PACKAGE_JSON = {
+export default {
   COMMIT_LINT: {
     '@commitlint/cli': '^19.6.0',
     '@commitlint/config-conventional': '^19.6.0',

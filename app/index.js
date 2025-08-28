@@ -1,5 +1,5 @@
 import Generator from 'yeoman-generator';
-import { PACKAGE_JSON } from './constants/package';
+import PACKAGE_JSON from './constants/package.ts';
 
 export default class extends Generator {
   constructor(args, opts) {
