@@ -4,6 +4,7 @@ export default class extends Generator {
     super(args, opts);
     this.answers = {};
     this.ciCdAnswers = {};
+    this.newProject = {};
 
     this.conflicter.force = true;
   }
@@ -43,7 +44,15 @@ export default class extends Generator {
     ]);
 
     if (this.answers.projectType === "create-project") {
-      this.log("Option not available yet 💩💩💩");
+      this.newProject = await this.prompt([
+        {
+          type: "input",
+          name: "name",
+          message: "Your project name",
+          default: 'my-project'
+        },
+      ]);
+      this.log(`Creating project ${this.newProject.name} 🚀🚀🚀`);
     } else if (this.answers.projectType === "add-ci-cd") {
       this.ciCdAnswers = await this.prompt([
         {
@@ -81,8 +90,42 @@ export default class extends Generator {
   }
 
   configuring() {
-    if (this.answers.projectType === "add-ci-cd") {
+    if(this.answers.projectType === "create-project") {
+      this.spawnCommandSync('npx', ['create-next-app@latest', this.newProject.name]);
+      
+      this.log('Installing commitlint 📦️');
+        const packageJson = this.fs.readJSON(`${this.newProject.name}/package.json`, {});
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+          '@commitlint/cli': '^19.6.0',
+          '@commitlint/config-conventional': '^19.6.0',
+        }
+  
+        this.log('Installing husky 📦️');
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+          husky: '^9.1.7',
+        }
+  
+        this.log('Initializing husky 📦️');
+        this.spawnCommandSync('npx', ['husky'], { cwd: this.destinationPath(this.newProject.name) });
 
+        this.log('Installing Jest 🧪🧪🧪');
+
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+            jest: '^29.7.0',
+            'jest-environment-jsdom': '^29.7.0',
+            '@testing-library/react': '^15.0.0',
+            '@testing-library/dom': '^10.4.0',
+            '@testing-library/jest-dom': '^6.6.3',
+            'ts-node': '^10.9.2',
+            '@types/jest': '^29.5.12'
+          }
+
+        this.fs.writeJSON(`${this.newProject.name}/package.json`, packageJson);
+
+    } else if (this.answers.projectType === "add-ci-cd") {
       if(this.ciCdAnswers.ciCdOptions.length === 0) {
         this.log('No options selected 💩💩💩');
         return;
@@ -127,7 +170,91 @@ export default class extends Generator {
   }
 
   writing() {
-    if (this.answers.projectType === "add-ci-cd") {
+
+    if(this.answers.projectType === "create-project") {
+      this.log('Creating new project 🚀🚀🚀');
+      let projectPath = '';
+
+      if(this.fs.exists(`${this.newProject.name}/src/app/page.tsx`)) {
+        projectPath = `${this.newProject.name}/src/app`;
+      } else if(this.fs.exists(`${this.newProject.name}/app/page.tsx`)) {
+        projectPath = `${this.newProject.name}/app`;
+      } else {
+        this.log('No app directory found 💩💩💩');
+        return;
+      }
+
+      this.log('Cleaning up the base project 🧹🧹🧹');
+      this.fs.copyTpl(
+        this.templatePath('./nextjs/page.tsx'),
+        this.destinationPath(`${projectPath}/page.tsx`),
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('./nextjs/atlantix-brand.svg'),
+        this.destinationPath(`${this.newProject.name}/public/atlantix-brand.svg`),
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('./nextjs/README.md'),
+        this.destinationPath(`${projectPath}/README.md`),
+      );
+
+      this.log('Configuring commitlint 🧑‍💻🧑‍💻🧑‍💻');
+      this.fs.copyTpl(
+        this.templatePath('commitlint.config.js'),
+        this.destinationPath(`${this.newProject.name}/commitlint.config.js`),
+        {
+          title: 'commitlint.config.js',
+        }
+      )
+
+      this.log('Configuring husky 🧵');
+      this.fs.copyTpl(
+        this.templatePath('commit-msg'),
+        this.destinationPath(`${this.newProject.name}/.husky/commit-msg`),
+        {
+          title: 'commit-msg',
+        }
+      )
+
+      this.log('Configuring github issues/pr templates 🦺🦺🦺');
+      this.fs.copyTpl(
+        this.templatePath('bug_report.md'),
+        this.destinationPath(`${this.newProject.name}/.github/ISSUE_TEMPLATE/bug_report.md`),
+      )
+      this.fs.copyTpl(
+        this.templatePath('feature_request.md'),
+        this.destinationPath(`${this.newProject.name}/.github/ISSUE_TEMPLATE/feature_request.md`),
+      )
+      this.fs.copyTpl(
+        this.templatePath('PULL_REQUEST_TEMPLATE.md'),
+        this.destinationPath(`${this.newProject.name}/.github/PULL_REQUEST_TEMPLATE.md`),
+      )
+
+      this.log('Writing new jest configuration file 🔧🔧🔧');
+      this.fs.copyTpl(
+        this.templatePath('jest.config.ts'),
+        this.destinationPath(`${this.newProject.name}/jest.config.ts`),
+      );
+      
+      this.log('Adding extra testing scripts 🌱🌱🌱');
+      const packageJson = this.fs.readJSON(`${this.newProject.name}/package.json`, {});
+      packageJson.scripts = {
+        ...packageJson.scripts,
+        test: 'jest',
+        'test:watch': 'jest --watch',
+        'test:coverage': 'jest --coverage',
+      }
+      this.fs.writeJSON(`${this.newProject.name}/package.json`, packageJson);
+    
+      this.log('Creating basic testing file ⚗️⚗️⚗️');
+      this.fs.copyTpl(
+        this.templatePath('index.test.ts'),
+        this.destinationPath(`${this.newProject.name}/__tests__/index.test.ts`),
+      );
+
+    } else if (this.answers.projectType === "add-ci-cd") {
 
       if(this.ciCdAnswers.ciCdOptions.length === 0) {
         return;
@@ -221,7 +348,13 @@ export default class extends Generator {
   }
 
   install() {
-    this.npmInstall();
+
+    if(this.answers.projectType === "create-project") {
+      this.log('Installing dependencies 📦️');
+      this.spawnCommandSync('npm', ['install'], { cwd: this.destinationPath(this.newProject.name) });
+    } else {
+      this.npmInstall();
+    }
   }
 
   end() {
