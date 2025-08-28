@@ -1,4 +1,6 @@
 import Generator from 'yeoman-generator';
+import PACKAGE_JSON from './constants/package.ts';
+
 export default class extends Generator {
   constructor(args, opts) {
     super(args, opts);
@@ -97,14 +99,13 @@ export default class extends Generator {
         const packageJson = this.fs.readJSON(`${this.newProject.name}/package.json`, {});
         packageJson.devDependencies = {
           ...packageJson.devDependencies,
-          '@commitlint/cli': '^19.6.0',
-          '@commitlint/config-conventional': '^19.6.0',
+          ...PACKAGE_JSON.COMMIT_LINT,
         }
   
         this.log('Installing husky 📦️');
         packageJson.devDependencies = {
           ...packageJson.devDependencies,
-          husky: '^9.1.7',
+          ...PACKAGE_JSON.HUSKY,
         }
   
         this.log('Initializing husky 📦️');
@@ -114,13 +115,7 @@ export default class extends Generator {
 
         packageJson.devDependencies = {
           ...packageJson.devDependencies,
-            jest: '^29.7.0',
-            'jest-environment-jsdom': '^29.7.0',
-            '@testing-library/react': '^15.0.0',
-            '@testing-library/dom': '^10.4.0',
-            '@testing-library/jest-dom': '^6.6.3',
-            'ts-node': '^10.9.2',
-            '@types/jest': '^29.5.12'
+          ...PACKAGE_JSON.JEST,
           }
 
         this.fs.writeJSON(`${this.newProject.name}/package.json`, packageJson);
@@ -137,15 +132,14 @@ export default class extends Generator {
         const packageJson = this.fs.readJSON(this.destinationPath('package.json'), {});
         packageJson.devDependencies = {
           ...packageJson.devDependencies,
-          '@commitlint/cli': '^19.6.0',
-          '@commitlint/config-conventional': '^19.6.0',
+          ...PACKAGE_JSON.COMMIT_LINT,
         }
         this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
   
         this.log('Installing husky 📦️');
         packageJson.devDependencies = {
           ...packageJson.devDependencies,
-          husky: '^9.1.7',
+          ...PACKAGE_JSON.HUSKY,
         }
         this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
   
@@ -157,13 +151,7 @@ export default class extends Generator {
       const packageJson = this.fs.readJSON(this.destinationPath('package.json'), {});
       packageJson.devDependencies = {
         ...packageJson.devDependencies,
-          jest: '^29.7.0',
-          'jest-environment-jsdom': '^29.7.0',
-          '@testing-library/react': '^15.0.0',
-          '@testing-library/dom': '^10.4.0',
-          '@testing-library/jest-dom': '^6.6.3',
-          'ts-node': '^10.9.2',
-          '@types/jest': '^29.5.12'
+        ...PACKAGE_JSON.JEST,
         }
       this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
     }
