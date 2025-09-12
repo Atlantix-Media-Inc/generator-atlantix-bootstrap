@@ -270,20 +270,31 @@ export default class extends Generator {
         )
       }
 
-      if(this.ciCdAnswers.ciCdOptions.includes("github-build-workflow")) {
-        this.log('Configuring github build workflow ✈️');
+      if(
+        this.ciCdAnswers.ciCdOptions.includes("github-test-workflow") &&
+        this.ciCdAnswers.ciCdOptions.includes("github-build-workflow")
+      ) {
+        this.log('Configuring github test build workflow 🧪');
         this.fs.copyTpl(
-          this.templatePath('build.yml'),
-          this.destinationPath('.github/workflows/build.yml'),
+          this.templatePath('test-build.yml'),
+          this.destinationPath('.github/workflows/test-build.yml'),
         )
-      }
-
-      if(this.ciCdAnswers.ciCdOptions.includes("github-test-workflow")) {
-        this.log('Configuring github test workflow 🧪');
-        this.fs.copyTpl(
-          this.templatePath('test.yml'),
-          this.destinationPath('.github/workflows/test.yml'),
-        )
+      } else {
+        if(this.ciCdAnswers.ciCdOptions.includes("github-build-workflow")) {
+          this.log('Configuring github build workflow ✈️');
+          this.fs.copyTpl(
+            this.templatePath('build.yml'),
+            this.destinationPath('.github/workflows/build.yml'),
+          )
+        }
+  
+        if(this.ciCdAnswers.ciCdOptions.includes("github-test-workflow")) {
+          this.log('Configuring github test workflow 🧪');
+          this.fs.copyTpl(
+            this.templatePath('test.yml'),
+            this.destinationPath('.github/workflows/test.yml'),
+          )
+        }
       }
 
       if(this.ciCdAnswers.ciCdOptions.includes("github-issues-pr-templates")) {
