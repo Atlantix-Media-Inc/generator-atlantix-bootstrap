@@ -5,6 +5,7 @@ You will be able to:
 * 🗃️ Create new [Nextjs](https://nextjs.org/) projects based on our coding standards
 * ✈️ Add CI/CD in existing node projects
 * 🧪 Add testing with [Jest](https://jestjs.io/) in existing projects
+* 🐛 Add Nextjs debugger configuration in existing projects
 
 And more...
 
