@@ -7,6 +7,7 @@ export default class extends Generator {
     this.answers = {};
     this.ciCdAnswers = {};
     this.newProject = {};
+    this.debuggerBrowser = {};
 
     this.conflicter.force = true;
   }
@@ -41,6 +42,10 @@ export default class extends Generator {
             name: "Add Jest testing configuration",
             value: "add-jest-testing",
           },
+          {
+            name: "Add Debugger configuration",
+            value: "add-debugger-configuration",
+          }
         ],
       }
     ]);
@@ -88,6 +93,29 @@ export default class extends Generator {
 
     } else if (this.answers.projectType === "add-jest-testing") {
       this.log("Adding Jest to your project 🧪🧪🧪");
+    } else if(this.answers.projectType === "add-debugger-configuration") {
+      this.log("Adding Debugger to your project 🔍🔍🔍");
+      this.debuggerBrowser = await this.prompt([
+        {
+          type: "list",
+          name: "browser",
+          message: "What browser do you want to use?",
+          choices: [
+            {
+              name: "Chrome",
+              value: "chrome",
+            },
+            {
+              name: "Firefox",
+              value: "firefox",
+            },
+            {
+              name: "Edge",
+              value: "msedge",
+            }
+          ],
+        }
+      ]);
     }
   }
 
@@ -154,6 +182,25 @@ export default class extends Generator {
         ...PACKAGE_JSON.JEST,
         }
       this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
+    } else if(this.answers.projectType === "add-debugger-configuration") {
+      this.log('Adding Debugger to your project 🔍🔍🔍');
+      this.fs.copyTpl(
+        this.templatePath('launch.json'),
+        this.destinationPath('.vscode/launch.json'),
+      );
+
+      this.log('Configuring debugger script 🔍');
+      const packageJson = this.fs.readJSON(this.destinationPath('package.json'), {});
+      packageJson.scripts = {
+        ...packageJson.scripts,
+        ...PACKAGE_JSON.DEBUGGER,
+      }
+      this.fs.writeJSON(this.destinationPath('package.json'), packageJson);
+
+      this.log('Updating launch.json file 🔍');
+      const vscodeConfig = this.fs.readJSON(this.destinationPath('.vscode/launch.json'), {});
+      vscodeConfig.configurations[0].type = this.debuggerBrowser.browser;
+      this.fs.writeJSON(this.destinationPath('.vscode/launch.json'), vscodeConfig);
     }
   }
 

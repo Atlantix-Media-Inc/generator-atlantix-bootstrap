@@ -14,5 +14,8 @@ export default {
   },
   HUSKY: {
     husky: '^9.1.7',
+  },
+  DEBUGGER: {
+    'dev': 'NODE_OPTIONS=\"--inspect\" next dev',
   }
 };
