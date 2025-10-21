@@ -145,9 +145,26 @@ export default class extends Generator {
           ...packageJson.devDependencies,
           ...PACKAGE_JSON.JEST,
           }
-
-        this.fs.writeJSON(`${this.newProject.name}/package.json`, packageJson);
-
+          
+          this.log('Adding Debugger to your project 🔍🔍🔍');
+          this.fs.copyTpl(
+            this.templatePath('launch.json'),
+            this.destinationPath(`${this.newProject.name}/.vscode/launch.json`),
+          );
+          
+          this.log('Configuring debugger script 🔍');
+          packageJson.scripts = {
+            ...packageJson.scripts,
+            ...PACKAGE_JSON.DEBUGGER,
+          }
+          this.fs.writeJSON(`${this.newProject.name}/package.json`, packageJson);
+          
+          this.log('Updating launch.json file 🔍');
+          const vscodeConfig = this.fs.readJSON(this.destinationPath(`${this.newProject.name}/.vscode/launch.json`), {});
+          vscodeConfig.configurations[0].type = 'firefox';
+          this.fs.writeJSON(this.destinationPath(`${this.newProject.name}/.vscode/launch.json`), vscodeConfig);
+          
+          this.fs.writeJSON(`${this.newProject.name}/package.json`, packageJson);
     } else if (this.answers.projectType === "add-ci-cd") {
       if(this.ciCdAnswers.ciCdOptions.length === 0) {
         this.log('No options selected 💩💩💩');
