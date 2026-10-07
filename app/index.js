@@ -8,6 +8,7 @@ export default class extends Generator {
     this.ciCdAnswers = {};
     this.newProject = {};
     this.debuggerBrowser = {};
+    this.webComponent = {};
 
     this.conflicter.force = true;
   }
@@ -31,20 +32,24 @@ export default class extends Generator {
         message: "What do you need to build?",
         choices: [
           {
-            name: "Create a new project",
+            name: "Create a new NextJS project 💻",
             value: "create-project",
           },
           {
-            name: "Add CI/CD Configurations",
+            name: "Add CI/CD Configurations ✅",
             value: "add-ci-cd",
           },
           {
-            name: "Add Jest testing configuration",
+            name: "Add Jest testing configuration 🧪",
             value: "add-jest-testing",
           },
           {
-            name: "Add Debugger configuration",
+            name: "Add Debugger configuration 🐞",
             value: "add-debugger-configuration",
+          },
+          {
+            name: "Create a new Web Component 🧩",
+            value: "create-web-component",
           }
         ],
       }
@@ -116,6 +121,16 @@ export default class extends Generator {
           ],
         }
       ]);
+    } else if(this.answers.projectType === "create-web-component") {
+      this.webComponent = await this.prompt([
+        {
+          type: "input",
+          name: "name",
+          message: "Your web component name",
+          default: 'my-web-component'
+        },
+      ]);
+      this.log(`Creating project ${this.webComponent.name} 🚀🚀🚀`);
     }
   }
 
@@ -218,6 +233,35 @@ export default class extends Generator {
       const vscodeConfig = this.fs.readJSON(this.destinationPath('.vscode/launch.json'), {});
       vscodeConfig.configurations[0].type = this.debuggerBrowser.browser;
       this.fs.writeJSON(this.destinationPath('.vscode/launch.json'), vscodeConfig);
+    } else if(this.answers.projectType === "create-web-component") {
+      this.spawnCommandSync('npm', ['create', 'vite@latest', this.webComponent.name, '--', '--template', 'vanilla-ts']);
+      
+      this.log('Installing lit 🦋');
+      let packageJson = this.fs.readJSON(`${this.webComponent.name}/package.json`, {});
+      packageJson.devDependencies = {
+        ...packageJson.devDependencies,
+        ...PACKAGE_JSON.LIT,
+      }
+        
+      this.log('Configuring scripts ⛑️');
+      packageJson.scripts = {
+        ...packageJson.scripts,
+        ...PACKAGE_JSON.WEB_COMPONENT_SCRIPTS,
+      }
+
+      this.log('Configuring exports ☄️');
+      packageJson.exports = {
+        ...packageJson.exports,
+        ...PACKAGE_JSON.WEB_COMPONENT_EXPORTS,
+      }
+
+      this.log('Configuring main ⚡');
+      packageJson = {
+        ...packageJson,
+        ...PACKAGE_JSON.WEB_COMPONENT_MAIN,
+      }
+
+      this.fs.writeJSON(`${this.webComponent.name}/package.json`, packageJson);
     }
   }
 
@@ -407,6 +451,42 @@ export default class extends Generator {
         this.templatePath('index.test.ts'),
         this.destinationPath('__tests__/index.test.ts'),
       );
+    } else if(this.answers.projectType === "create-web-component") {
+      this.log('Creating web component 🧩');
+
+      this.log('Cleaning up the base project 🧹🧹🧹');
+
+      this.fs.delete(this.destinationPath(`${this.webComponent.name}/src`));
+
+      this.fs.copyTpl(
+        this.templatePath('./web-component/index.ts'),
+        this.destinationPath(`${this.webComponent.name}/src/index.ts`),
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('./web-component/index.html'),
+        this.destinationPath(`${this.webComponent.name}/index.html`),
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('./web-component/.npmignore'),
+        this.destinationPath(`${this.webComponent.name}/.npmignore`),
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('./web-component/rollup.config.js'),
+        this.destinationPath(`${this.webComponent.name}/rollup.config.js`),
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('./web-component/tsconfig.json'),
+        this.destinationPath(`${this.webComponent.name}/tsconfig.json`),
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('./web-component/vite.config.ts'),
+        this.destinationPath(`${this.webComponent.name}/vite.config.ts`),
+      );
     }
   }
 
@@ -415,6 +495,9 @@ export default class extends Generator {
     if(this.answers.projectType === "create-project") {
       this.log('Installing dependencies 📦️');
       this.spawnCommandSync('npm', ['install'], { cwd: this.destinationPath(this.newProject.name) });
+    } else if(this.answers.projectType === "create-web-component") {
+      this.log('Installing dependencies 📦️');
+      this.spawnCommandSync('npm', ['install'], { cwd: this.destinationPath(this.webComponent.name) });
     } else {
       this.npmInstall();
     }
